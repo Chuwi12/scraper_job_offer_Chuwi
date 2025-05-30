@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import csv
 
 # Funcion para sacar la información del sitio
-def extrar_ofertas(url):
+def extrar_ofertas(url, nombre_archivo):
 
     # Ingreso de petición http get en la variable, simulando que soy un navegador Mozilla
     req = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -49,8 +49,24 @@ def extrar_ofertas(url):
 
             # Obtener las tecnologías que piden
             tecnologias = []
+            tecnologias_elementos = oferta.find_all("span", class_="technology")
+            for tec in tecnologias_elementos:
+                tecnologias.append(tec.get_text(strip=True))
 
+            # Añadir las ofertas a la lista
+            ofertas.append({
+                "Puesto": titulo,
+                "Salario": salario,
+                "Tecnologías": ", ".join(tecnologias)
+            })
 
+        # Creación del archivos .csv con los datos de las ofertas
+        with open(nombre_archivo + ".csv", "w", newline="", encoding="utf-8") as csvfile:
+            campos = ["Puesto", "Salario", "Tecnologías"]
+            writer = csv.DictWriter(csvfile, fieldnames=campos)
+            writer.writeheader()
+            for oferta in ofertas:
+                writer.writerow(oferta)
 
     else: 
         print("El codigo de erro es: " + req.status_code)
@@ -60,7 +76,8 @@ def extrar_ofertas(url):
 # Ingreso de url
 url = input("Ingresa la url que quieras hacer el scaneo:")
 
-# Llamada a la función
-ofertas = extrar_ofertas(url)
+# Ingreso de nombre del archivo
+nombre_archivo = input("Nombre del archivo:")
 
-#
+# Llamada a la función
+ofertas = extrar_ofertas(url, nombre_archivo)
