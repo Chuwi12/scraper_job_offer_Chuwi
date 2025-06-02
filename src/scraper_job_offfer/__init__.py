@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import csv
 
 # Funcion para sacar la información del sitio
-def extrar_ofertas(url, nombre_archivo):
+def extrac_offers(url, nombre_archivo):
 
     # Ingreso de petición http get en la variable, simulando que soy un navegador Mozilla
     req = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -15,58 +15,58 @@ def extrar_ofertas(url, nombre_archivo):
         soup = BeautifulSoup(req.text, "html.parser")
 
         # Lista de las ofertas de trabajo
-        ofertas = []
+        offers = []
 
         # Iterar las ofertas de trabajo
-        for oferta in soup.find_all("article"):
+        for offer in soup.find_all("article"):
 
             # Extracción de nombre de la oferta de trabajo
-            titulo_elemento = oferta.find("h2")
+            elemet_title = offer.find("h2")
 
             # Comprobación de la existencía del titulo, sino esxiste se asigana none
-            titulo = titulo_elemento.get_text(strip=True) if titulo_elemento else "None"
+            title = elemet_title.get_text(strip=True) if elemet_title else "None"
 
             # Comprobación de nivel de experiencía de la oferta 
             # En mi caso de junior y entry modificable para futuros usos
-            nivel_elemento = oferta.find("span", class_="experience-level")
+            element_level = offer.find("span", class_="experience-level")
 
             # Comprobación de la existencia del nivel de la oferta
-            nivel = nivel_elemento.get_text(strip=True).lower() if nivel_elemento else "No se especifica"
+            level = element_level.get_text(strip=True).lower() if element_level else "No se especifica"
 
             # Comprobación de que la oferta sea para junior o entry
-            if "junior"  not in nivel and "entry" not in nivel:
+            if "junior"  not in level and "entry" not in level:
                 continue
             
             # Comprobación de si la oferta es en remoto, exactamente el mismo procedimeinto del anterior
-            ubicacion_elemento = oferta.find("span", class_="location")
-            ubicacion = ubicacion_elemento.get_text(strip=True).lower() if ubicacion_elemento else "No es remota"
-            if "remote" not in ubicacion:
+            element_location = offer.find("span", class_="location")
+            location = element_location.get_text(strip=True).lower() if element_location else "No es remota"
+            if "remote" not in location:
                 continue
 
             # Extración de salarío si este se encuentra
-            salario_elemento = oferta.find("span", class_="salary")
-            salario = salario_elemento.get_text(strip=True) if salario_elemento else "No especificado"
+            element_salary = offer.find("span", class_="salary")
+            salary = element_salary.get_text(strip=True) if element_salary else "No especificado"
 
             # Obtener las tecnologías que piden
-            tecnologias = []
-            tecnologias_elementos = oferta.find_all("span", class_="technology")
-            for tec in tecnologias_elementos:
-                tecnologias.append(tec.get_text(strip=True))
+            technologys = []
+            element_technolgys = offer.find_all("span", class_="technology")
+            for tec in element_technolgys:
+                technologys.append(tec.get_text(strip=True))
 
             # Añadir las ofertas a la lista
-            ofertas.append({
-                "Puesto": titulo,
-                "Salario": salario,
-                "Tecnologías": ", ".join(tecnologias)
+            offers.append({
+                "Puesto": title,
+                "Salario": salary,
+                "Tecnologías": ", ".join(technologys)
             })
 
         # Creación del archivos .csv con los datos de las ofertas
         with open(nombre_archivo + ".csv", "w", newline="", encoding="utf-8") as csvfile:
-            campos = ["Puesto", "Salario", "Tecnologías"]
-            writer = csv.DictWriter(csvfile, fieldnames=campos)
+            fields = ["Puesto", "Salario", "Tecnologías"]
+            writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
-            for oferta in ofertas:
-                writer.writerow(oferta)
+            for offer in offers:
+                writer.writerow(offer)
 
     else: 
         print("El codigo de erro es: " + req.status_code)
@@ -74,10 +74,10 @@ def extrar_ofertas(url, nombre_archivo):
 
 
 # Ingreso de url
-url = input("Ingresa la url que quieras hacer el scaneo:\n")
+url = input(":\n")
 
 # Ingreso de nombre del archivo
-nombre_archivo = input("Nombre del archivo:\n")
+file_name = input("File name:\n")
 
 # Llamada a la función
-ofertas = extrar_ofertas(url, nombre_archivo)
+extrac_offers(url, file_name)
